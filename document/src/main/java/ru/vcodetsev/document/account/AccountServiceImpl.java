@@ -17,4 +17,14 @@ public class AccountServiceImpl implements AccountService {
                 .retrieve()
                 .bodyToMono(Boolean.class).block());
     }
+
+    @Override
+    public boolean isDoctorExist(long doctorId) {
+        return Boolean.TRUE.equals(WebClient
+                .create("http://localhost:8081/api/Accounts/IsDoctorExist?id=" + doctorId)
+                .get()
+                .header(HttpHeaders.CONTENT_TYPE, "application/json")
+                .retrieve()
+                .bodyToMono(Boolean.class).block());
+    }
 }

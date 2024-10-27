@@ -25,13 +25,19 @@ public class ValidationService {
 
     }
 
-    //todo
     public void checkDoctorExist(long doctorId) {
-        if (!accountService.isAccountExist(doctorId)) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "Account with id " + doctorId + " does not exist"
-            );
+        if (!accountService.isDoctorExist(doctorId)) {
+            if (accountService.isAccountExist(doctorId)) {
+                throw new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Account with id " + doctorId + " exist, but doesnt have doctor role"
+                );
+            } else {
+                throw new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Account with id " + doctorId + " does not exist"
+                );
+            }
         }
     }
 

@@ -31,4 +31,6 @@ public interface AccountService {
     AccountDto updateAccountAdmin(long id, String firstName, String lastName, String username, String password, Collection<Role> roles);
 
     void softDelete(long id);
+
+    boolean isDoctorExist(long id);
 }

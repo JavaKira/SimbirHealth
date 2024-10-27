@@ -32,6 +32,7 @@ public class SecurityConfig {
                                 .hasRole("ADMIN")
                                 .requestMatchers(
                                         "/Accounts/IsExist",
+                                        "/Accounts/IsDoctorExist",
                                         "/Authentication/SingIn",
                                         "/Authentication/SingUp",
                                         "/Authentication/Validate",

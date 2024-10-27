@@ -32,6 +32,14 @@ class AccountController {
         return accountService.isAccountExist(id);
     }
 
+    @GetMapping("/IsDoctorExist")
+    @Operation(
+            summary = "Проверка существования доктора по id"
+    )
+    boolean isDoctorExist(@RequestParam long id) {
+        return accountService.isDoctorExist(id);
+    }
+
     @PatchMapping ("/Update")
     @Operation(
             summary = "Обновление своего аккаунта",

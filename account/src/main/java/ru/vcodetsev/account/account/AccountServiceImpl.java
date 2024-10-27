@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -136,6 +137,11 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void softDelete(long id) {
         account(id).setState(AccountState.deleted);
+    }
+
+    @Override
+    public boolean isDoctorExist(long id) {
+        return repository.existsAccountByRolesAndId(Collections.singleton(Role.doctor), id);
     }
 
     public void checkUsername(String username, long id) {
