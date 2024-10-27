@@ -16,6 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
+import ru.vcodetsev.hospital.ApiProperties;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -25,6 +26,8 @@ import java.util.function.Predicate;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
+    private final ApiProperties apiProperties;
+
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
@@ -49,7 +52,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     Mono<TokenIntrospectionResult> introspectToken(String accessToken) {
         return WebClient
-                .create("http://localhost:8081/api/Authentication/Validate?accessToken=" + accessToken)
+                .create(apiProperties.getAccountServiceUrl() + "/api/Authentication/Validate?accessToken=" + accessToken)
                 .get()
                 .retrieve()
                 .onStatus(Predicate.isEqual(HttpStatus.FORBIDDEN),

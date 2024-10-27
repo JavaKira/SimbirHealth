@@ -14,6 +14,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import ru.vcodetsev.document.ApiProperties;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Objects;
@@ -21,6 +23,8 @@ import java.util.Objects;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
+    private final ApiProperties apiProperties;
+
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
@@ -45,7 +49,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     Mono<TokenIntrospectionResult> introspectToken(String accessToken) {
         return WebClient
-                .create("http://localhost:8081/api/Authentication/Validate?accessToken=" + accessToken)
+                .create(apiProperties.getAccountServiceUrl() + "/api/Authentication/Validate?accessToken=" + accessToken)
                 .get()
                 .retrieve()
                 .bodyToMono(TokenIntrospectionResult.class);
