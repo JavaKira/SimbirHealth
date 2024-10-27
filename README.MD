@@ -6,3 +6,13 @@
 # Дополнительная информация которую я захотите указать
 1. В AccountController добавлен PATCH /api/Accounts/UpdatePassword для обновления пароля вместо PATCH /api/Accounts/Update
 2. В некоторых контролерах эндпойнты, которые используются только админами переместились на */Admin, чтобы было удобнее матчить их в Spring Security
+# Предустановленные аккаунты по умолчанию:
+№ Логин Пароль Роль
+
+1 admin admin Admin
+
+2 manager manager Manager
+
+3 doctor doctor Doctor
+
+4 user user User
