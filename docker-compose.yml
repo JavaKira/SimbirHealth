@@ -36,8 +36,9 @@ services:
       - postgres
 
   document:
-    image: "eclipse-temurin:17-jdk-jammy"
-    command: "java -jar ./document/build/libs/document-0.0.1-SNAPSHOT.jar"
+    build:
+      context: ./document
+      dockerfile: /Dockerfile
     ports:
       - "8084:8084"
     depends_on:
