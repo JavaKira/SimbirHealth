@@ -61,7 +61,6 @@ public class DefaultAccountsRegistration {
                 );
             } catch (Exception ignored) {
                 //Если не получилось то фиг с ним
-                log.error(ignored.getMessage(), ignored);
             }
         });
     }

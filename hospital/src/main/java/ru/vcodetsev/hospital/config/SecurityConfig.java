@@ -26,7 +26,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                         authorizationManagerRequestMatcherRegistry
                         .requestMatchers(
-                                "/Hospitals/Admin"
+                                "/Hospitals/Admin/**"
                         )
                         .hasRole("ADMIN")
                         .requestMatchers(

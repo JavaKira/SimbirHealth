@@ -21,8 +21,8 @@ class HospitalAdminController {
     @SecurityRequirement(name = "Bearer Authentication")
     HospitalDto createHospital(@RequestBody HospitalCreateRequest request) {
         return hospitalService.createHospital(
-                request.getName(),
-                request.getAddress(),
+                request.getName(), //todo проверять не занято ли
+                request.getAddress(), //todo проверять не занято ли
                 request.getPhone(),
                 request.getRooms()
         );

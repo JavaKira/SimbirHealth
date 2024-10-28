@@ -141,7 +141,11 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public boolean isDoctorExist(long id) {
-        return repository.existsAccountByRolesAndId(Collections.singleton(Role.doctor), id);
+        if (repository.existsById(id)) {
+            return repository.findById(id).get().getRoles().contains(Role.doctor);
+        }
+
+        return false;
     }
 
     public void checkUsername(String username, long id) {

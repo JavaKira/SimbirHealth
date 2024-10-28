@@ -35,12 +35,14 @@ public class HospitalServiceImpl implements HospitalService {
 
     @Override
     public List<HospitalDto> allHospitalDtos(int from, int count) {
-        return repository
+        List<HospitalDto> hospitalDtos = repository
                 .findAll()
                 .stream()
+                .filter(hospital -> hospital.getState() != HospitalState.deleted)
                 .map(HospitalDto::from)
-                .collect(Collectors.toList())
-                .subList(from, Math.min(from + count, repository.findAll().size()));
+                .collect(Collectors.toList());
+        return hospitalDtos
+                .subList(from, Math.min(from + count, hospitalDtos.size()));
     }
 
     @Override
