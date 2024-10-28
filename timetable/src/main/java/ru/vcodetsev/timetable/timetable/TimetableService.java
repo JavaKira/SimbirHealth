@@ -1,6 +1,9 @@
 package ru.vcodetsev.timetable.timetable;
 
+import ru.vcodetsev.timetable.appointment.AppointmentDto;
+
 import java.time.LocalDateTime;
+import java.util.Collection;
 
 public interface TimetableService {
     Timetable timetable(long timetableId);
@@ -9,5 +12,25 @@ public interface TimetableService {
 
     TimetableDto createTimetable(long hospitalId, long doctorId, LocalDateTime from, LocalDateTime to, String room);
 
-    HospitalTimetableResponse createHospitalTimetable(long id);
+    TimetableDto updateTimetable(long timetableId, long hospitalId, long doctorId, LocalDateTime from, LocalDateTime to, String room);
+
+    void softDeleteTimetable(long timetableId);
+
+    HospitalTimetableResponse generateHospitalTimetable(long hospitalId);
+
+    void softDeleteDoctorTimetables(long doctorId);
+
+    void softDeleteHospitalTimetables(long hospitalId);
+
+    DoctorTimetableResponse generateDoctorTimetable(long doctorId);
+
+    RoomTimetableDto generateRoomTimetable(long hospitalId, String room);
+
+    Collection<LocalDateTime> freeTickets(long timetableId);
+
+    AppointmentDto createAppointment(long id, long hospitalId, long doctorId, LocalDateTime from, LocalDateTime to, String room);
+
+    void softDeleteAppointment(long appointmentId);
+
+    Collection<AppointmentDto> getAccountAppointments(long id);
 }

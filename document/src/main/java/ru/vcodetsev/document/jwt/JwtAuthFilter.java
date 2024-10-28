@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -19,6 +20,7 @@ import ru.vcodetsev.document.ApiProperties;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 @Component
 @RequiredArgsConstructor
@@ -52,6 +54,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 .create(apiProperties.getAccountServiceUrl() + "/api/Authentication/Validate?accessToken=" + accessToken)
                 .get()
                 .retrieve()
+                .onStatus(Predicate.isEqual(HttpStatus.FORBIDDEN),
+                        clientResponse ->  clientResponse.bodyToMono(Exception.class).map(Exception::new))
                 .bodyToMono(TokenIntrospectionResult.class);
     }
 }
