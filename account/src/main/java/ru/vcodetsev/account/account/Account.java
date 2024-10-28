@@ -20,6 +20,7 @@ public class Account implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
+    private String fullName;
     private String firstName;
     private String lastName;
     private String username;

@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import ru.vcodetsev.timetable.ApiProperties;
-import ru.vcodetsev.timetable.appointment.Appointment;
 import ru.vcodetsev.timetable.appointment.AppointmentCreateRequest;
 import ru.vcodetsev.timetable.appointment.AppointmentDto;
+import ru.vcodetsev.timetable.appointment.AppointmentService;
 import ru.vcodetsev.timetable.jwt.TokenIntrospectionResult;
 
 import java.time.LocalDateTime;
@@ -24,6 +24,7 @@ import java.util.function.Predicate;
 @RequestMapping("/Timetable")
 class TimetableController {
     final TimetableService timetableService;
+    final AppointmentService appointmentService;
     final ApiProperties apiProperties;
 
     @PostMapping
@@ -133,7 +134,7 @@ class TimetableController {
     @SecurityRequirement(name = "Bearer Authentication")
     Collection<AppointmentDto> getAccountAppointments(HttpServletRequest request) {
         //todo внимание! количество кринжа привышено в этой зоне!
-        return timetableService.getAccountAppointments(
+        return appointmentService.getAccountAppointments(
                 Objects.requireNonNull(
                         introspectToken(
                                 request.getHeader("Authorization").substring("Bearer ".length())
@@ -174,13 +175,9 @@ class TimetableController {
     )
     @SecurityRequirement(name = "Bearer Authentication")
     AppointmentDto createAppointment(@PathVariable("id") long id, AppointmentCreateRequest request) {
-        return timetableService.createAppointment(
+        return appointmentService.createAppointment(
                 id,
-                request.getHospitalId(),
-                request.getDoctorId(),
-                request.getFrom(),
-                request.getTo(),
-                request.getRoom()
+                request.getTime()
         );
     }
 
@@ -191,6 +188,6 @@ class TimetableController {
     )
     @SecurityRequirement(name = "Bearer Authentication")
     void deleteAppointment(@PathVariable("id") long id) {
-        timetableService.softDeleteAppointment(id);
+        appointmentService.softDeleteAppointment(id);
     }
 }

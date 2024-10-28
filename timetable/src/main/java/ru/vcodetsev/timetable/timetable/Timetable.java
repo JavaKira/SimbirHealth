@@ -5,9 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.vcodetsev.timetable.appointment.AppointmentState;
+import ru.vcodetsev.timetable.appointment.Appointment;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Data
 @Entity
@@ -23,6 +24,8 @@ public class Timetable {
     private LocalDateTime from;//todo мб как строку хранить
     private LocalDateTime to;
     private String room;
+    @OneToMany
+    private Map<LocalDateTime, Appointment> appointments;
 
     @Builder.Default
     @Enumerated(value = EnumType.STRING)

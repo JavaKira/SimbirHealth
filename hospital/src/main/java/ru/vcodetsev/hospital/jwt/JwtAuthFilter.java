@@ -57,6 +57,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 .retrieve()
                 .onStatus(Predicate.isEqual(HttpStatus.FORBIDDEN),
                         clientResponse ->  clientResponse.bodyToMono(Exception.class).map(Exception::new))
+                .onStatus(Predicate.isEqual(HttpStatus.INTERNAL_SERVER_ERROR),
+                        clientResponse ->  clientResponse.bodyToMono(Exception.class).map(Exception::new))
                 .bodyToMono(TokenIntrospectionResult.class);
     }
 }

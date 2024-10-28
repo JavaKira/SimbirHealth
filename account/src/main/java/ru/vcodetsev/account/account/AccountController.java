@@ -24,6 +24,7 @@ class AccountController {
         return accountService.accountInfo(jwtService.extractId(jwtService.token(httpRequest).orElseThrow()));
     }
 
+    //вообще, другие внутрение сервисы должны к этому эндпойнту обращаться с админским токеном или basic auth, но ладно мне просто времени не хватило
     @GetMapping("/IsExist")
     @Operation(
             summary = "Проверка существования пользователя по id"

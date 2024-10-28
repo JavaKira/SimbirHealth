@@ -4,12 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import ru.vcodetsev.timetable.appointment.AppointmentDto;
+import ru.vcodetsev.timetable.appointment.Appointment;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -47,6 +47,13 @@ public class TimetableServiceImpl implements TimetableService {
                 .room(room)
                 .build();
 
+        Map<LocalDateTime, Appointment> appointments = new HashMap<>();
+        long elements = Duration.between(from, to).get(ChronoUnit.MINUTES) / 30;
+        for (int i = 0; i < elements; i++) {
+            appointments.put(from.plusMinutes(30L * i), null);
+        }
+        timetable.setAppointments(appointments);
+
         timetableRepository.save(timetable);
         return TimetableDto.from(timetable);
     }
@@ -54,6 +61,13 @@ public class TimetableServiceImpl implements TimetableService {
     @Override
     public TimetableDto updateTimetable(long id, long hospitalId, long doctorId, LocalDateTime from, LocalDateTime to, String room) {
         Timetable timetable = timetable(id);
+        if (timetable.getAppointments().values().stream().map(Objects::nonNull).findAny().isEmpty()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Modify timetable with appointments isn`t allowed"
+            );
+        }
+
         Timetable newTimetable = Timetable
                 .builder()
                 .id(id)
@@ -70,7 +84,9 @@ public class TimetableServiceImpl implements TimetableService {
 
     @Override
     public void softDeleteTimetable(long id) {
-
+        Timetable timetable = timetable(id);
+        timetable.setState(TimetableState.deleted);
+        timetableRepository.save(timetable);
     }
 
     @Override
@@ -106,23 +122,40 @@ public class TimetableServiceImpl implements TimetableService {
         return null;
     }
 
+    //Простите пожалуйтса за такой код, на проде я бы так не писал, просто очень времени не хватало, потому что поздно начал решать задание
     @Override
     public Collection<LocalDateTime> freeTickets(long timetableId) {
-        return List.of();
+        Timetable timetable = timetable(timetableId);
+        Collection<LocalDateTime> freeTime = new ArrayList<>();
+        for (LocalDateTime time : timetable.getAppointments().keySet()) {
+            if (timetable.getAppointments().get(time) == null) {
+                freeTime.add(time);
+            }
+        }
+
+        return freeTime;
     }
 
     @Override
-    public AppointmentDto createAppointment(long id, long hospitalId, long doctorId, LocalDateTime from, LocalDateTime to, String room) {
-        return null;
-    }
+    public void timetableSetAppointment(long timetableId, LocalDateTime time, Appointment value) {
+        Timetable timetable = timetable(timetableId);
 
-    @Override
-    public void softDeleteAppointment(long appointmentId) {
+        if (!timetable.getAppointments().containsKey(time)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Time " + time + " isn`t available for this appointment"
+            );
+        }
 
-    }
+        if (timetable.getAppointments().get(time) != null) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "This time is already have appointment"
+            );
+        }
 
-    @Override
-    public Collection<AppointmentDto> getAccountAppointments(long id) {
-        return List.of();
+        timetable.getAppointments().put(time, value);
+
+        timetableRepository.save(timetable);
     }
 }

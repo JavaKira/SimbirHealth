@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -36,9 +37,20 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Collection<AccountDto> getDoctorsInfo(String nameFilter, int from, int count) {
-        List<Account> doctors = repository
-                .findAll()
-                .stream()
+        Stream<Account> accountStream;
+
+        if (nameFilter == null || nameFilter.isEmpty()) {
+            accountStream = repository
+                    .findAll()
+                    .stream();
+        } else {
+            accountStream = repository
+                    .findAccountsByFullNameLike(nameFilter)
+                    .stream();
+        }
+
+
+        List<Account> doctors = accountStream
                 .filter(account -> account.getRoles().contains(Role.doctor))
                 .toList();
         return doctors
@@ -82,6 +94,7 @@ public class AccountServiceImpl implements AccountService {
                 .firstName(firstName)
                 .lastName(lastName)
                 .roles(roles)
+                .fullName(firstName + " " + lastName)
                 .state(AccountState.normal)
                 .build();
         repository.save(account);
@@ -94,6 +107,7 @@ public class AccountServiceImpl implements AccountService {
         account.setFirstName(request.getFirstName());
         account.setLastName(request.getLastName());
         account.setUsername(request.getUsername());
+        account.setFullName(request.getFirstName() + " " + request.getLastName());
         repository.save(account);
     }
 
@@ -129,6 +143,7 @@ public class AccountServiceImpl implements AccountService {
         account.setLastName(lastName);
         account.setUsername(username);
         account.setRoles(roles);
+        account.setFullName(firstName + " " + lastName);
         account.setPassword(passwordEncoder.encode(password));
         repository.save(account);
         return AccountDto.from(account);
