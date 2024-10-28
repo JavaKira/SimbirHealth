@@ -25,8 +25,8 @@ public class TimetableDto {
                 .id(timetable.getId())
                 .hospitalId(timetable.getHospitalId())
                 .doctorId(timetable.getDoctorId())
-                .from(timetable.getFrom())
-                .to(timetable.getTo())
+                .from(timetable.getFromTime())
+                .to(timetable.getToTime())
                 .room(timetable.getRoom())
                 .build();
     }

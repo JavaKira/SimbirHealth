@@ -1,20 +1,25 @@
 package ru.vcodetsev.timetable.timetable;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import ru.vcodetsev.timetable.appointment.Appointment;
+import ru.vcodetsev.timetable.appointment.AppointmentRepository;
+import ru.vcodetsev.timetable.appointment.AppointmentState;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TimetableServiceImpl implements TimetableService {
     final TimetableRepository timetableRepository;
+    final AppointmentRepository appointmentRepository;
 
     @Override
     public Timetable timetable(long timetableId) {
@@ -42,15 +47,21 @@ public class TimetableServiceImpl implements TimetableService {
                 .builder()
                 .hospitalId(hospitalId)
                 .doctorId(doctorId)
-                .from(from)
-                .to(to)
+                .fromTime(from)
+                .toTime(to)
                 .room(room)
                 .build();
+        timetableRepository.save(timetable);
 
-        Map<LocalDateTime, Appointment> appointments = new HashMap<>();
-        long elements = Duration.between(from, to).get(ChronoUnit.MINUTES) / 30;
+        Map<String, Appointment> appointments = new HashMap<>();
+        long elements = Duration.between(from, to).toMinutes() / 30;
         for (int i = 0; i < elements; i++) {
-            appointments.put(from.plusMinutes(30L * i), null);
+            Appointment appointment = new Appointment();
+            appointment.setTimetableId(timetable.getId());
+            appointment.setState(AppointmentState.free);
+            appointment.setTime(from.plusMinutes(30L * i));
+            appointmentRepository.save(appointment);
+            appointments.put(from.plusMinutes(30L * i).toString(), appointment);
         }
         timetable.setAppointments(appointments);
 
@@ -73,8 +84,8 @@ public class TimetableServiceImpl implements TimetableService {
                 .id(id)
                 .hospitalId(hospitalId)
                 .doctorId(doctorId)
-                .from(from)
-                .to(to)
+                .fromTime(from)
+                .toTime(to)
                 .room(room)
                 .build();
 
@@ -127,8 +138,8 @@ public class TimetableServiceImpl implements TimetableService {
     public Collection<LocalDateTime> freeTickets(long timetableId) {
         Timetable timetable = timetable(timetableId);
         Collection<LocalDateTime> freeTime = new ArrayList<>();
-        for (LocalDateTime time : timetable.getAppointments().keySet()) {
-            if (timetable.getAppointments().get(time) == null) {
+        for (LocalDateTime time : timetable.getAppointments().keySet().stream().map(LocalDateTime::parse).toList()) {
+            if (timetable.getAppointments().get(time.toString()).getState() == AppointmentState.free) {
                 freeTime.add(time);
             }
         }
@@ -140,21 +151,21 @@ public class TimetableServiceImpl implements TimetableService {
     public void timetableSetAppointment(long timetableId, LocalDateTime time, Appointment value) {
         Timetable timetable = timetable(timetableId);
 
-        if (!timetable.getAppointments().containsKey(time)) {
+        if (!timetable.getAppointments().containsKey(time.toString())) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "Time " + time + " isn`t available for this appointment"
             );
         }
 
-        if (timetable.getAppointments().get(time) != null) {
+        if (timetable.getAppointments().get(time.toString()) != null) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "This time is already have appointment"
             );
         }
 
-        timetable.getAppointments().put(time, value);
+        timetable.getAppointments().put(time.toString(), value);
 
         timetableRepository.save(timetable);
     }
